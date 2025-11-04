@@ -147,7 +147,7 @@ def stack_gvar(xglobal: pd.DataFrame,
                 Lambda0 = A_draw_cc[wex_start:wex_start + (W.shape[1] - n_vars), :].T
             else:
                 Lambda0 = np.zeros((n_vars, W.shape[1] - n_vars))
-            print(f"Lambda0: {Lambda0}")
+           
             
             # Construct A matrix: [I, -Lambda0']
             A = np.hstack([np.eye(n_vars), -Lambda0.T])

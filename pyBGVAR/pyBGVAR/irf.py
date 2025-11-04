@@ -150,7 +150,9 @@ def irf(x,
         warnings.warn("Quantile computation without store is simplified. Use save.store=True for full posterior.")
     
     # Get median structural objects
-    median_idx = np.argmin(np.abs(quantiles - 0.5))
+    # Convert quantiles to numpy array for subtraction operation
+    quantiles_array = np.asarray(quantiles)
+    median_idx = np.argmin(np.abs(quantiles_array - 0.5))
     med_idx = thindraws // 2
     
     A_med = A_large[:, :, med_idx]
