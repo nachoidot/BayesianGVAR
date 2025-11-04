@@ -360,8 +360,23 @@ def estimate_bvar(Yraw: np.ndarray,
             A0_draw = A_draw.copy()
             A0_draw[:, mm] = 0
             
-            ztilde = ((Y - X @ A0_draw) @ L_drawinv[mm:M, :].T) * np.exp(-0.5 * Sv_draw[:, mm:M])
-            xtilde = np.kron(L_drawinv[mm:M, mm:mm+1], X) * np.exp(-0.5 * Sv_draw[:, mm:M])
+            # Calculate ztilde with proper broadcasting
+            Y_residual = Y - X @ A0_draw  # Shape: (bigT, M)
+            L_inv_slice = L_drawinv[mm:M, :]  # Shape: (M-mm, M)
+            Sv_exp = np.exp(-0.5 * Sv_draw[:, mm:M])  # Shape: (bigT, M-mm)
+            
+            ztilde = (Y_residual @ L_inv_slice.T) * Sv_exp  # Shape: (bigT, M-mm)
+            
+            # Calculate xtilde with proper broadcasting
+            L_kron_slice = L_drawinv[mm:M, mm:mm+1]  # Shape: (M-mm, 1)
+            L_kron = np.kron(L_kron_slice, X)  # Shape: (bigT*(M-mm), k)
+            
+            # Reshape Sv_exp to match L_kron shape for broadcasting
+            # L_kron is (bigT*(M-mm), k), so we need to repeat Sv_exp for each column
+            Sv_exp_repeated = np.repeat(Sv_exp, k, axis=1)  # Shape: (bigT, k*(M-mm))
+            Sv_exp_reshaped = Sv_exp_repeated.reshape(-1, k)  # Shape: (bigT*(M-mm), k)
+            
+            xtilde = L_kron * Sv_exp_reshaped  # Shape: (bigT*(M-mm), k)
             
             try:
                 V_post = inv(xtilde.T @ xtilde + np.diag(1.0 / theta[:, mm]))
