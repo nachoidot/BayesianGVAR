@@ -316,7 +316,9 @@ class BGVAR:
     
     def _process_expert_settings(self):
         """Process expert settings."""
-        expert = self.args.get('expert', {})
+        expert = self.args.get('expert')
+        if expert is None:
+            expert = {}
         
         default_expert = {
             'variable.list': None,
@@ -330,9 +332,10 @@ class BGVAR:
             'cores': None
         }
         
-        for key, value in expert.items():
-            if key in default_expert:
-                default_expert[key] = value
+        if expert:
+            for key, value in expert.items():
+                if key in default_expert:
+                    default_expert[key] = value
         
         self.expert = default_expert
     
