@@ -223,10 +223,11 @@ def stack_gvar(xglobal: pd.DataFrame,
             S_post.append(S_country)
         
         # Compute G inverse
+        # Note: solve() requires two arguments (a, b), so use inv() for matrix inverse
         try:
-            G_inv = solve(G)
-        except np.linalg.LinAlgError:
             G_inv = inv(G)
+        except np.linalg.LinAlgError:
+            G_inv = np.linalg.pinv(G)
             warnings.warn(f"Singular G matrix at draw {irep + 1}, using pseudo-inverse")
         
         # Stack variance-covariance matrix (block diagonal)

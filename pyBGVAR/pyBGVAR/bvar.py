@@ -360,23 +360,28 @@ def estimate_bvar(Yraw: np.ndarray,
             A0_draw = A_draw.copy()
             A0_draw[:, mm] = 0
             
-            # Calculate ztilde with proper broadcasting
+            # Calculate ztilde: vectorize both matrices and multiply element-wise
+            # R code: ztilde <- as.vector((Y - X%*%A0_draw)%*%t(L_drawinv[mm:M,])) * exp(-0.5*as.vector(Sv_draw[,mm:M]))
             Y_residual = Y - X @ A0_draw  # Shape: (bigT, M)
             L_inv_slice = L_drawinv[mm:M, :]  # Shape: (M-mm, M)
+            zmat = Y_residual @ L_inv_slice.T  # Shape: (bigT, M-mm)
+            
             Sv_exp = np.exp(-0.5 * Sv_draw[:, mm:M])  # Shape: (bigT, M-mm)
             
-            ztilde = (Y_residual @ L_inv_slice.T) * Sv_exp  # Shape: (bigT, M-mm)
+            # Vectorize both (column-major order like R's as.vector)
+            ztilde = zmat.flatten('F') * Sv_exp.flatten('F')  # Shape: (bigT*(M-mm),)
             
-            # Calculate xtilde with proper broadcasting
+            # Calculate xtilde: kron product with repmat of vectorized Sv_exp
+            # C++ code: xtilde = kron(Linv_0.col(mm), X) % repmat(vectorise(S_0),1,k);
+            # R code: xtilde <- (L_drawinv[mm:M,mm,drop=FALSE] %x% X) * exp(-0.5*as.vector(Sv_draw[,mm:M,drop=FALSE]))
             L_kron_slice = L_drawinv[mm:M, mm:mm+1]  # Shape: (M-mm, 1)
             L_kron = np.kron(L_kron_slice, X)  # Shape: (bigT*(M-mm), k)
             
-            # Reshape Sv_exp to match L_kron shape for broadcasting
-            # L_kron is (bigT*(M-mm), k), so we need to repeat Sv_exp for each column
-            Sv_exp_repeated = np.repeat(Sv_exp, k, axis=1)  # Shape: (bigT, k*(M-mm))
-            Sv_exp_reshaped = Sv_exp_repeated.reshape(-1, k)  # Shape: (bigT*(M-mm), k)
+            # Repmat vectorized Sv_exp: repeat k times (like C++ repmat(vectorise(S_0), 1, k))
+            Sv_exp_vectorized = Sv_exp.flatten('F')  # Shape: (bigT*(M-mm),) - column-major like R
+            Sv_exp_repmat = np.tile(Sv_exp_vectorized[:, np.newaxis], (1, k))  # Shape: (bigT*(M-mm), k)
             
-            xtilde = L_kron * Sv_exp_reshaped  # Shape: (bigT*(M-mm), k)
+            xtilde = L_kron * Sv_exp_repmat  # Shape: (bigT*(M-mm), k)
             
             try:
                 V_post = inv(xtilde.T @ xtilde + np.diag(1.0 / theta[:, mm]))
