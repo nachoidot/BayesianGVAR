@@ -4,10 +4,35 @@
 
 ### 1. 설치
 
+#### 방법 A: GitHub에서 직접 설치 (권장)
+
 ```bash
+# 최신 버전 설치
+pip install git+https://github.com/[사용자명]/pyBGVAR.git
+
+# 또는 특정 버전 (안정)
+pip install git+https://github.com/[사용자명]/pyBGVAR.git@v0.1.0
+```
+
+#### 방법 B: 로컬 개발 모드 (개발자용)
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/[사용자명]/pyBGVAR.git
 cd pyBGVAR
+
+# 2. 개발 모드 설치
 pip install -e .
 ```
+
+> 💡 **Tip**: 가상 환경 사용을 권장합니다!
+> ```bash
+> python -m venv bgvar_env
+> source bgvar_env/bin/activate  # Windows: bgvar_env\Scripts\activate
+> pip install git+https://github.com/[사용자명]/pyBGVAR.git
+> ```
+
+**자세한 설치 가이드**: [GITHUB_INSTALLATION_GUIDE.md](GITHUB_INSTALLATION_GUIDE.md) 참고
 
 ### 2. 최소 실행 예제
 
@@ -274,16 +299,31 @@ model = BGVAR(Data=data, W=W, burnin=10000)
 
 ## 다음 단계
 
-1. **전체 예제 실행**: `python example_usage.py`
-2. **문서 읽기**: `README.md`
-3. **상세 구현**: `COMPLETE_IMPLEMENTATION.md`
-4. **각 함수 docstring 확인**
+### 📚 더 자세히 알아보기
+
+1. **완전 초보자**:
+   - [GETTING_STARTED.md](GETTING_STARTED.md) - 전체 시작 가이드
+   - `python example_usage.py` - 전체 예제 실행
+
+2. **설치 문제가 있나요?**:
+   - [GITHUB_INSTALLATION_GUIDE.md](GITHUB_INSTALLATION_GUIDE.md) - 상세 설치 및 문제 해결
+
+3. **실전 분석 시작**:
+   - [TUTORIAL.md](TUTORIAL.md) - 완전한 프로젝트 예제
+   - 데이터 준비부터 결과 보고까지
+
+4. **전체 기능 탐색**:
+   - [README.md](README.md) - 모든 기능 API 문서
+
+5. **문서 가이드**:
+   - [문서_가이드_요약.md](문서_가이드_요약.md) - 어떤 문서를 읽어야 할지 모르겠다면
 
 ## 도움말
 
-- **버그 리포트**: GitHub Issues
-- **기능 요청**: GitHub Discussions
-- **예제 추가**: Pull Requests 환영!
+- 🐛 **버그 리포트**: [GitHub Issues](https://github.com/[사용자명]/pyBGVAR/issues)
+- 💬 **질문 및 토론**: [GitHub Discussions](https://github.com/[사용자명]/pyBGVAR/discussions)
+- 🤝 **기여하기**: [기여 가이드](GITHUB_INSTALLATION_GUIDE.md#73-기여하기-contributing)
+- ⭐ **프로젝트 지원**: [GitHub Star](https://github.com/[사용자명]/pyBGVAR)
 
 ---
 

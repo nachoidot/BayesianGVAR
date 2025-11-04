@@ -113,6 +113,13 @@ def stack_gvar(xglobal: pd.DataFrame,
             else:
                 # Fallback: use identity if no store available
                 A_draw_cc = np.eye(M)
+                print(f"No A_store found for country {cc}")
+                print(VAR)
+                print(A_store_cc.shape)
+                print(irep)
+                print(A_draw_cc.shape)
+                print(A_draw_cc)
+                print(A_draw_cc.shape)
             
             # Extract Lambda0 (contemporaneous weakly exogenous)
             # This would need proper extraction from A_store based on variable names
@@ -130,7 +137,9 @@ def stack_gvar(xglobal: pd.DataFrame,
                     Phi_coeffs.append(A_draw_cc[start_idx:end_idx, :].T)
                 else:
                     Phi_coeffs.append(np.zeros((n_vars, n_vars)))
-            
+            print(f"Phi_coeffs: {Phi_coeffs}")
+
+
             # Extract Lambda0 and Lambda lags
             # Simplified: assume weakly exogenous start after endogenous
             wex_start = n_vars * plag_cc
@@ -138,6 +147,7 @@ def stack_gvar(xglobal: pd.DataFrame,
                 Lambda0 = A_draw_cc[wex_start:wex_start + (W.shape[1] - n_vars), :].T
             else:
                 Lambda0 = np.zeros((n_vars, W.shape[1] - n_vars))
+            print(f"Lambda0: {Lambda0}")
             
             # Construct A matrix: [I, -Lambda0']
             A = np.hstack([np.eye(n_vars), -Lambda0.T])

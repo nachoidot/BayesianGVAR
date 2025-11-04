@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from typing import Union, List, Dict, Tuple, Optional
 import warnings
+import os
 
 
 def get_shockinfo(ident: str = "chol", nr_rows: int = 1) -> pd.DataFrame:
@@ -435,4 +436,121 @@ def check_weight_matrix(W: Union[Dict, np.ndarray, pd.DataFrame],
     
     else:
         raise TypeError("Please provide the argument 'W' either as 'dict' or as 'array/DataFrame'.")
+
+
+def excel_to_list(file: str, 
+                  first_column_as_time: bool = True, 
+                  skipsheet: Optional[Union[List[str], List[int]]] = None,
+                  **kwargs) -> Dict[str, pd.DataFrame]:
+    """
+    Read data from Excel file and convert to dictionary format.
+    
+    Reads an Excel spreadsheet where each sheet represents data for one country.
+    Column names are used as variable names. If `first_column_as_time` is True,
+    the first column is treated as a time index.
+    
+    Parameters
+    ----------
+    file : str
+        Path to the Excel file (.xls or .xlsx).
+    first_column_as_time : bool, optional
+        Whether the first column in each sheet represents time. Default is True.
+    skipsheet : list, optional
+        List of sheet names (strings) or indices (integers) to skip.
+        Default is None (read all sheets).
+    **kwargs
+        Additional arguments passed to pandas.read_excel().
+    
+    Returns
+    -------
+    dict
+        Dictionary where keys are country names (sheet names) and values
+        are DataFrames with time as index (if first_column_as_time=True)
+        or regular DataFrames.
+    
+    Examples
+    --------
+    >>> data_dict = excel_to_list('data.xlsx', first_column_as_time=True)
+    >>> # Each sheet represents a country, e.g., 'US', 'EA'
+    >>> # First column is time index, remaining columns are variables
+    """
+    # Check if file exists
+    if not os.path.exists(file):
+        raise FileNotFoundError(f"The provided file does not exist: {file}")
+    
+    # Check file extension
+    if not file.lower().endswith(('.xls', '.xlsx')):
+        raise ValueError("Please provide a path to an Excel file (ending with .xls or .xlsx).")
+    
+    # Read all sheet names
+    try:
+        excel_file = pd.ExcelFile(file)
+        sheet_names = excel_file.sheet_names
+    except Exception as e:
+        raise ValueError(f"Could not read Excel file: {e}")
+    
+    # Filter out skipped sheets
+    if skipsheet is not None:
+        if len(skipsheet) > 0:
+            if isinstance(skipsheet[0], str):
+                # Skip by name
+                sheet_names = [name for name in sheet_names if name not in skipsheet]
+            elif isinstance(skipsheet[0], int):
+                # Skip by index (1-based to 0-based conversion)
+                sheet_names = [name for i, name in enumerate(sheet_names) 
+                              if (i + 1) not in skipsheet]
+    
+    # Read each sheet
+    datalist = {}
+    for sheet_name in sheet_names:
+        try:
+            # Read the sheet
+            df = pd.read_excel(file, sheet_name=sheet_name, **kwargs)
+            
+            if first_column_as_time:
+                # First column is time index
+                if df.empty:
+                    warnings.warn(f"Sheet '{sheet_name}' is empty. Skipping.")
+                    continue
+                
+                # Check if first column exists and is time-like
+                time_col = df.iloc[:, 0]
+                
+                # Try to convert to datetime if it's not already
+                try:
+                    time_index = pd.to_datetime(time_col)
+                except:
+                    # If conversion fails, use as string
+                    time_index = pd.Index(time_col.astype(str))
+                
+                # Use remaining columns as data
+                data = df.iloc[:, 1:].copy()
+                data.index = time_index
+                data.columns.name = None  # Remove column name
+                
+            else:
+                # No time column, use all columns as data
+                data = df.copy()
+            
+            # Convert to numeric (handle any non-numeric columns)
+            for col in data.columns:
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+            
+            # Remove any rows with all NaN
+            data = data.dropna(how='all')
+            
+            if data.empty:
+                warnings.warn(f"Sheet '{sheet_name}' contains no valid data. Skipping.")
+                continue
+            
+            datalist[sheet_name] = data
+            
+        except Exception as e:
+            warnings.warn(f"Error reading sheet '{sheet_name}': {e}. Skipping.")
+            continue
+    
+    if len(datalist) == 0:
+        raise ValueError("No valid data found in Excel file. Please check the file format.")
+    
+    return datalist
 

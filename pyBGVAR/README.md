@@ -1,14 +1,35 @@
 # pyBGVAR: Python Implementation of Bayesian Global Vector Autoregressions
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 Python 포팅 버전의 Bayesian Global Vector Autoregression (BGVAR) 패키지입니다.
 
 이 패키지는 원본 R 패키지 BGVAR의 Python 구현체입니다.
 
-## 설치
+## 빠른 시작
+
+### 설치
+
+#### GitHub에서 설치 (권장)
 
 ```bash
+# 최신 버전
+pip install git+https://github.com/[사용자명]/pyBGVAR.git
+
+# 특정 버전 (안정)
+pip install git+https://github.com/[사용자명]/pyBGVAR.git@v0.1.0
+```
+
+#### 개발 모드 (로컬)
+
+```bash
+git clone https://github.com/[사용자명]/pyBGVAR.git
+cd pyBGVAR
 pip install -e .
 ```
+
+**자세한 설치 가이드**: [GITHUB_INSTALLATION_GUIDE.md](GITHUB_INSTALLATION_GUIDE.md)
 
 ## 주요 기능
 
@@ -191,7 +212,43 @@ plot.plot_fevd(fevd_result, resp='US.y')
 plot.plot_pred(fcast, resp=['US.y', 'EA.y'])
 ```
 
+## 문서
+
+- **[빠른 시작 가이드](QUICKSTART.md)**: 5분 만에 시작하기
+- **[GitHub 설치 가이드](GITHUB_INSTALLATION_GUIDE.md)**: 상세한 설치 및 문제해결
+- **[사용 예제](example_usage.py)**: 모든 기능을 포함한 완전한 예제
+
+## 기여하기
+
+버그 리포트, 기능 요청, 코드 기여를 환영합니다!
+
+1. 이슈 제기: [GitHub Issues](https://github.com/[사용자명]/pyBGVAR/issues)
+2. Pull Request: [기여 가이드](GITHUB_INSTALLATION_GUIDE.md#73-기여하기-contributing) 참고
+3. 토론: [GitHub Discussions](https://github.com/[사용자명]/pyBGVAR/discussions)
+
+## 라이선스
+
+이 프로젝트는 GNU General Public License v3.0 하에 배포됩니다.
+
 ## 참고문헌
 
 Boeck, M., Feldkircher, M. and F. Huber (2022) BGVAR: Bayesian Global Vector Autoregressions with Shrinkage Priors in R. *Journal of Statistical Software*, Vol. 104(9), pp. 1-28.
+
+## 인용
+
+이 패키지를 연구에 사용하신 경우, 다음과 같이 인용해주세요:
+
+```bibtex
+@software{pyBGVAR2025,
+  title = {pyBGVAR: Python Implementation of Bayesian Global Vector Autoregressions},
+  author = {Python BGVAR Team},
+  year = {2025},
+  version = {0.1.0},
+  url = {https://github.com/[사용자명]/pyBGVAR}
+}
+```
+
+---
+
+**즐거운 분석 되세요!** 🚀
 
