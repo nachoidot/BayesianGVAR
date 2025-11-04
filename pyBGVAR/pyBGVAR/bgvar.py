@@ -251,7 +251,8 @@ class BGVAR:
     def _process_weights(self):
         """Process weight matrices."""
         W = self.args['W']
-        OE_weights = self.args.get('expert', {}).get('OE.weights', None)
+        expert = self.args.get('expert')
+        OE_weights = expert.get('OE.weights', None) if expert else None
         
         self.W_dict = utils.check_weight_matrix(W, self.cN, OE_weights)
         
